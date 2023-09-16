@@ -14,6 +14,7 @@ const users: Record<string, User> = {};
 export const t = initTRPC.context<Context>().create({
 	transformer: superjson
 });
+
 export const appRouter = t.router({
 	getUserById: t.procedure.input(z.string()).query((opts) => {
 		return users[opts.input];
