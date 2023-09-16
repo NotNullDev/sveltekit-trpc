@@ -12,10 +12,9 @@
 	async function createUser() {
 		try {
 			const createdUser = await api.createUser.mutate({
-				name: 'John',
-				bio: 'I like to swim.'
+				name: 'John'
 			});
-			response = `${createdUser.id} ${createdUser.name} ${createdUser.bio}`;
+			response = `${createdUser.id} ${createdUser.fullName}`;
 		} catch (e) {
 			if (e instanceof TRPCClientError) {
 				console.log(e.message);
