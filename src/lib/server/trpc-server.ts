@@ -1,4 +1,4 @@
-import { users } from '$lib/schema';
+import { products } from '$lib/schema';
 import { TRPCError, initTRPC, type inferAsyncReturnType } from '@trpc/server';
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import superjson from 'superjson';
@@ -15,46 +15,40 @@ export const t = initTRPC.context<Context>().create({
 	transformer: superjson
 });
 
+// public procedure
+const pt = t.procedure;
+
 export const appRouter = t.router({
-	getUserById: t.procedure.input(z.number()).query(async ({ input }) => {
-		return await db.query.users.findFirst({
-			where: (fields, { eq }) => {
-				return eq(fields.id, input);
-			}
-		});
+	getAllProducts: pt.query(async () => {
+		return await db.query.products.findMany();
 	}),
-	createUser: t.procedure
+	createProduct: pt
 		.input(
 			z.object({
-				name: z.string().min(3)
+				title: z.string().min(1),
+				description: z.string().min(1),
+				price: z.number().positive()
 			})
 		)
-		.mutation(async ({ input }) => {
-			if (Math.random() > 0.5) {
-				throw new TRPCError({
-					message: 'yes, this is a trpc error!',
-					code: 'BAD_REQUEST',
-					cause: 'idk'
-				});
-			}
-
-			const createdUsers = await db
-				.insert(users)
+		.mutation(async ({ input: { title, description, price } }) => {
+			const createdProducts = await db
+				.insert(products)
 				.values({
-					fullName: input.name
+					title,
+					description,
+					price
 				})
 				.returning();
 
-			const createdUser = createdUsers.at(0);
-			if (!createdUser) {
-				console.error('failed to create user');
+			const createdProduct = createdProducts.at(0);
+			if (!createdProduct) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'failed to create user'
+					message: 'Failed to create product.'
 				});
 			}
 
-			return createdUser;
+			return createdProduct;
 		})
 });
 

@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn {
+	@apply btn-sm;
+}
+
+.input {
+	@apply input-sm;
+}
+
+.app-card {
+	@apply bg-base-100 p-6 rounded-md shadow;
+}
